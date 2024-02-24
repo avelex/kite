@@ -3,26 +3,43 @@ package entity
 type WardType string
 
 const (
-	Observer WardType = "obs"
+	Observer WardType = "observer"
 	Sentry   WardType = "sentry"
 )
 
+type Wards map[WardType]struct{}
+
+func (w Wards) HasObserver() bool {
+	_, ok := w[Observer]
+	return ok
+}
+
+func (w Wards) HasSentry() bool {
+	_, ok := w[Sentry]
+	return ok
+}
+
+func (w Wards) Slice() []string {
+	out := make([]string, 0, len(w))
+	for k := range w {
+		out = append(out, string(k))
+	}
+	return out
+}
+
 type PlayerWard struct {
-	AccountID    int64
+	ID           uint
+	AccountID    int64 `gorm:"index"`
 	MatchID      int64
 	PatchVersion int64
 	Time         int64
-	X, Y         int
-	IsRadiant    bool
+	X, Y         uint8
+	Side         string
 	Type         WardType
 }
 
-type Ward struct {
-	Time      int64  `json:"time"`
-	Type      string `json:"type"`
-	Key       string `json:"key"`
-	X         int    `json:"x"`
-	Y         int    `json:"y"`
-	Z         int    `json:"z"`
-	IsRadiant bool   `json:"is_radiant"`
+type WardView struct {
+	X    uint8  `json:"x"`
+	Y    uint8  `json:"y"`
+	Rate uint16 `json:"rate"`
 }

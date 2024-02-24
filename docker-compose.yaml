@@ -3,8 +3,6 @@ services:
   backend:
     build:
       context: .
-    ports:
-      - 8089:8089
     secrets:
       - db-password
       - opendota-api-key
@@ -12,11 +10,14 @@ services:
       - DB_HOST=postgres
       - DB_USERNAME=postgres
       - DB_PASSWORD_PATH=/run/secrets/db-password
+      - DB_NAME=main
       - OPEN_DOTA_API_KEY_PATH=/run/secrets/opendota-api-key
       - REDIS_ADDR=redis:6379
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   postgres:
     image: postgres
@@ -29,8 +30,10 @@ services:
     environment:
       - POSTGRES_DB=main
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-    expose:
-      - 5432
+    # expose:
+    #   - 5432
+    ports:
+      - 54320:5432
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 10s
@@ -38,9 +41,14 @@ services:
       retries: 5
 
   redis:
-    image: redislabs/redismod
+    image: redis
     ports:
       - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
 
   proxy:
     image: nginx

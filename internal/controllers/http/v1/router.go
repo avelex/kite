@@ -2,13 +2,14 @@ package v1
 
 import (
 	"context"
+	"strings"
 
 	"github.com/avelex/kite/internal/entity"
 	"github.com/gofiber/fiber/v2"
 )
 
 type PlayersUsecases interface {
-	PlayerWards(ctx context.Context, nickname string) (entity.PlayerWardsView, error)
+	PlayerWards(ctx context.Context, nickname, patch string, sides entity.Sides, wards entity.Wards, times []uint16) (entity.PlayerWardsView, error)
 }
 
 type handler struct {
@@ -34,12 +35,16 @@ func (h *handler) status(ctx *fiber.Ctx) error {
 }
 
 func (h *handler) showPlayerWards(ctx *fiber.Ctx) error {
-	var in showPlayerInfoRequest
+	var in showPlayerWardsRequest
 	if err := ctx.BodyParser(&in); err != nil {
 		return fiber.ErrBadRequest
 	}
 
-	view, err := h.pu.PlayerWards(ctx.Context(), in.Nickname)
+	if strings.TrimSpace(in.Nickname) == "" {
+		return fiber.ErrBadRequest
+	}
+
+	view, err := h.pu.PlayerWards(ctx.Context(), in.Nickname, in.Patch, in.Side, in.Wards, in.Time)
 	if err != nil {
 		return fiber.ErrInternalServerError
 	}

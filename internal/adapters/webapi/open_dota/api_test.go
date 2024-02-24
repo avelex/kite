@@ -2,7 +2,6 @@ package opendota_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	opendota "github.com/avelex/kite/internal/adapters/webapi/open_dota"
@@ -15,14 +14,7 @@ func TestAPI(t *testing.T) {
 	r := require.New(t)
 	api := opendota.New(key)
 
-	m, err := api.PlayerAllMatches(context.Background(), 18180970)
+	patches, err := api.Patches(context.TODO())
 	r.NoError(err)
-
-	match := m[0]
-
-	p, err := api.Match(context.Background(), match.MatchID)
-	r.NoError(err)
-
-	f := p.Player(18180970)
-	fmt.Printf("p: %+v\n", f.Obs)
+	r.NotEmpty(patches)
 }

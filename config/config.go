@@ -21,6 +21,7 @@ type Config struct {
 		Port         string `env:"DB_PORT" env-default:"5432"`
 		Host         string `env:"DB_HOST" env-default:"postgres"`
 		Username     string `env:"DB_USERNAME" env-default:"postgres"`
+		DatabaseName string `env:"DB_NAME" env-default:"main"`
 		PasswordPath string `env:"DB_PASSWORD_PATH" env-required:"true"`
 		Password     string
 	}

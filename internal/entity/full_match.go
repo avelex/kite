@@ -46,15 +46,24 @@ type FullMatchPlayer struct {
 	HeroID        int    `json:"hero_id"`
 	IsRadiant     bool   `json:"isRadiant"`
 
-	Obs           []Ward `json:"obs_log"`
-	ObsPlaced     int    `json:"obs_placed"`
-	ObserverKills int    `json:"observer_kills"`
-	ObserverUses  int    `json:"observer_uses"`
+	Obs           []FullMatchWard `json:"obs_log"`
+	ObsPlaced     int             `json:"obs_placed"`
+	ObserverKills int             `json:"observer_kills"`
+	ObserverUses  int             `json:"observer_uses"`
 
-	Sen         []Ward `json:"sen_log"`
-	SenPlaced   int    `json:"sen_placed"`
-	SentryKills int    `json:"sentry_kills"`
-	SentryUses  int    `json:"sentry_uses"`
+	Sen         []FullMatchWard `json:"sen_log"`
+	SenPlaced   int             `json:"sen_placed"`
+	SentryKills int             `json:"sentry_kills"`
+	SentryUses  int             `json:"sentry_uses"`
+}
+
+type FullMatchWard struct {
+	Time int64  `json:"time"`
+	Type string `json:"type"`
+	Key  string `json:"key"`
+	X    uint8  `json:"x"`
+	Y    uint8  `json:"y"`
+	Z    uint8  `json:"z"`
 }
 
 func (m FullMatch) Player(accountID int64) FullMatchPlayer {

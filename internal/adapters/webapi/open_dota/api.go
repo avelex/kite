@@ -2,6 +2,7 @@ package opendota
 
 import (
 	"context"
+	"slices"
 
 	"github.com/avelex/kite/internal/entity"
 	"github.com/carlmjohnson/requests"
@@ -15,19 +16,27 @@ const (
 	_PLAYER_MATCHES_PATH = "/api/players/%d/matches"
 	_MATCHES_INFO_PATH   = "/api/matches/%d"
 	_PRO_PLAYERS_PATH    = "/api/proPlayers"
+	_PATCH_PATH          = "/api/constants/patch"
 )
 
-type API struct {
+type API interface {
+	PlayerAllMatches(ctx context.Context, accountID int64) ([]entity.PlayerMatchOverview, error)
+	ProPlayers(ctx context.Context) ([]entity.ProPlayer, error)
+	Patches(ctx context.Context) ([]entity.Patch, error)
+	Match(ctx context.Context, matchID int64) (entity.FullMatch, error)
+}
+
+type api struct {
 	key string
 }
 
-func New(key string) *API {
-	return &API{
+func New(key string) *api {
+	return &api{
 		key: key,
 	}
 }
 
-func (a *API) PlayerAllMatches(ctx context.Context, accountID int64) ([]entity.PlayerMatchOverview, error) {
+func (a *api) PlayerAllMatches(ctx context.Context, accountID int64) ([]entity.PlayerMatchOverview, error) {
 	var matches []entity.PlayerMatchOverview
 
 	err := requests.URL(_API_BASE).
@@ -39,34 +48,27 @@ func (a *API) PlayerAllMatches(ctx context.Context, accountID int64) ([]entity.P
 		return nil, err
 	}
 
+	slices.Reverse(matches)
+
 	return matches, nil
 }
 
-func (a *API) ProPlayers(ctx context.Context) ([]int64, error) {
-	type proPlayer struct {
-		AccountID int64 `json:"account_id"`
-	}
-
-	var p []proPlayer
+func (a *api) ProPlayers(ctx context.Context) ([]entity.ProPlayer, error) {
+	var list []entity.ProPlayer
 
 	err := requests.URL(_API_BASE).
 		Path(_PRO_PLAYERS_PATH).
 		Param(_API_KEY, a.key).
-		ToJSON(&p).
+		ToJSON(&list).
 		Fetch(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	out := make([]int64, 0, len(p))
-	for _, pp := range p {
-		out = append(out, pp.AccountID)
-	}
-
-	return out, nil
+	return list, nil
 }
 
-func (a *API) Match(ctx context.Context, matchID int64) (entity.FullMatch, error) {
+func (a *api) Match(ctx context.Context, matchID int64) (entity.FullMatch, error) {
 	var m entity.FullMatch
 
 	err := requests.URL(_API_BASE).
@@ -79,4 +81,19 @@ func (a *API) Match(ctx context.Context, matchID int64) (entity.FullMatch, error
 	}
 
 	return m, nil
+}
+
+func (a *api) Patches(ctx context.Context) ([]entity.Patch, error) {
+	var list []entity.Patch
+
+	err := requests.URL(_API_BASE).
+		Path(_PATCH_PATH).
+		Param(_API_KEY, a.key).
+		ToJSON(&list).
+		Fetch(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return list, nil
 }

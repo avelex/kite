@@ -8,4 +8,4 @@ start:
 
 .PHONY: down
 down:
-	docker compose down -v
+	docker compose down
