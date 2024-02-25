@@ -122,7 +122,7 @@ func Run(ctx context.Context, cfg config.Config) error {
 	return nil
 }
 
-func startBagroundTasks(cfg config.Config) error {
+func startBagroundTasks(cfg config.Config) {
 	logger := logger.LoggerFromContext(context.Background())
 
 	client := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.Redis.Addr})
@@ -130,18 +130,16 @@ func startBagroundTasks(cfg config.Config) error {
 
 	task, err := tasks.NewPlayerWardCollectTask(16497807)
 	if err != nil {
-		return err
+		return
 	}
 
 	info, err := client.Enqueue(task, asynq.Timeout(24*time.Hour))
 	if err != nil {
 		logger.Errorf("failed to enqueue task: %w", err)
-		return err
+		return
 	}
 
 	logger.Infof("Enqueued task: id=%s queue=%s", info.ID, info.Queue)
-
-	return nil
 }
 
 func migration(db *gorm.DB) error {

@@ -36,7 +36,9 @@ func (r *repository) PrepareData(ctx context.Context) error {
 		r.versionPatch[p.ID] = p.Name
 	}
 
-	r.latestPatch = patches[len(patches)-1].Name
+	if len(patches) > 0 {
+		r.latestPatch = patches[len(patches)-1].Name
+	}
 
 	return nil
 }

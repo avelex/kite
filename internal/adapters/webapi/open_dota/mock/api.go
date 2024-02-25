@@ -2,6 +2,8 @@ package mock
 
 import (
 	"context"
+	"encoding/json"
+	"strings"
 
 	"github.com/avelex/kite/internal/entity"
 )
@@ -14,19 +16,43 @@ func New() *api {
 }
 
 func (a *api) PlayerAllMatches(_ context.Context, accountID int64) ([]entity.PlayerMatchOverview, error) {
-	return nil, nil
+	var out []entity.PlayerMatchOverview
+
+	if err := json.NewDecoder(strings.NewReader(matches)).Decode(&out); err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }
 
 func (a *api) ProPlayers(_ context.Context) ([]entity.ProPlayer, error) {
-	return nil, nil
+	var out []entity.ProPlayer
+
+	if err := json.NewDecoder(strings.NewReader(proPlayers)).Decode(&out); err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }
 
 func (a *api) Patches(_ context.Context) ([]entity.Patch, error) {
-	return nil, nil
+	var out []entity.Patch
+
+	if err := json.NewDecoder(strings.NewReader(patches)).Decode(&out); err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }
 
 func (a *api) Match(_ context.Context, matchID int64) (entity.FullMatch, error) {
-	return entity.FullMatch{}, nil
+	var out entity.FullMatch
+
+	if err := json.NewDecoder(strings.NewReader(match)).Decode(&out); err != nil {
+		return entity.FullMatch{}, err
+	}
+
+	return out, nil
 }
 
 var proPlayers = `[{
