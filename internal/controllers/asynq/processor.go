@@ -26,7 +26,7 @@ func NewProcessor(wc WardCollectorUsecases) *processor {
 }
 
 func (p *processor) Register(m *asynq.ServeMux) {
-	m.Handle(tasks.PlayerWardCollect, p)
+	m.Handle(tasks.WardCollect, p)
 }
 
 func (p *processor) ProcessTask(ctx context.Context, t *asynq.Task) error {
