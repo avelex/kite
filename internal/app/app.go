@@ -31,12 +31,12 @@ func Run(ctx context.Context, cfg config.Config) error {
 	logger := logger.LoggerFromContext(ctx)
 
 	// Init connections to db
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		cfg.Postgres.Host,
 		cfg.Postgres.Username,
 		cfg.Postgres.Password,
-		cfg.Postgres.Host,
-		cfg.Postgres.Port,
 		cfg.Postgres.DatabaseName,
+		cfg.Postgres.Port,
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn))

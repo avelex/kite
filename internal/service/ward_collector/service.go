@@ -68,7 +68,11 @@ func (s *service) collectPlayer(ctx context.Context, accountID int64) error {
 	}
 
 	for _, matchID := range newMatches {
-		time.Sleep(100 * time.Millisecond)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
 
 		ctxMatch, cancel := context.WithTimeout(ctx, 3*time.Second)
 
@@ -76,7 +80,7 @@ func (s *service) collectPlayer(ctx context.Context, accountID int64) error {
 		cancel()
 
 		if err != nil {
-			logger.Errorf("failed to get match=%s: %w", matchID, err)
+			logger.Errorf("failed to get match=%d: %v", matchID, err)
 			continue
 		}
 
