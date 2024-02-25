@@ -76,6 +76,7 @@ var matches = `[
 	}
 ]`
 
+//go:nolint
 var match = `{
     "version": 21,
     "match_id": 7586292999,

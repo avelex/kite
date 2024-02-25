@@ -9,3 +9,18 @@ start:
 .PHONY: down
 down:
 	docker compose down
+
+.PHONY: test
+test:
+	go test -race ./...
+
+.PHONY: lint
+lint: golangci-lint nilaway-lint
+
+.PHONY: golangci-lint
+golangci-lint:
+	golangci-lint run
+
+.PHONY: nilaway-lint
+nilaway-lint:
+	nilaway ./...
