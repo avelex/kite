@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -49,8 +50,8 @@ func InitConfig() Config {
 			panic(err)
 		}
 
-		cfg.OpenDotaAPI.Key = string(apiKey)
-		cfg.Postgres.Password = string(dbPassword)
+		cfg.OpenDotaAPI.Key = strings.TrimSpace(string(apiKey))
+		cfg.Postgres.Password = strings.TrimSpace(string(dbPassword))
 	})
 	return cfg
 }

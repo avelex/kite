@@ -128,12 +128,12 @@ func startBagroundTasks(cfg config.Config) {
 	client := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.Redis.Addr})
 	defer client.Close()
 
-	task, err := tasks.NewPlayerWardCollectTask(16497807)
+	task, err := tasks.NewWardCollectTask()
 	if err != nil {
 		return
 	}
 
-	info, err := client.Enqueue(task, asynq.Timeout(24*time.Hour))
+	info, err := client.Enqueue(task, asynq.ProcessIn(1*time.Hour), asynq.Timeout(24*time.Hour))
 	if err != nil {
 		logger.Errorf("failed to enqueue task: %w", err)
 		return
