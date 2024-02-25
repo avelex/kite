@@ -2,7 +2,6 @@ package asynq
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/avelex/kite/internal/controllers/asynq/tasks"
@@ -32,13 +31,8 @@ func (p *processor) Register(m *asynq.ServeMux) {
 func (p *processor) ProcessTask(ctx context.Context, t *asynq.Task) error {
 	logger := logger.LoggerFromContext(ctx)
 
-	var in tasks.PlayerWardPayload
-	if err := json.Unmarshal(t.Payload(), &in); err != nil {
-		return err
-	}
-
 	logger.Info("Start processing collect wards task")
-	if err := p.wc.CollectPlayer(ctx, in.AccountID); err != nil {
+	if err := p.wc.Collect(ctx); err != nil {
 		return fmt.Errorf("failed to collect wards: %v %w", err, asynq.SkipRetry)
 	}
 
