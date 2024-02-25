@@ -68,6 +68,8 @@ func (s *service) collectPlayer(ctx context.Context, accountID int64) error {
 	}
 
 	for _, matchID := range newMatches {
+		time.Sleep(100 * time.Millisecond)
+
 		ctxMatch, cancel := context.WithTimeout(ctx, 3*time.Second)
 
 		match, err := s.openDotaAPI.Match(ctxMatch, matchID)

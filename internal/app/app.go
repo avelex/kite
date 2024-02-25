@@ -133,7 +133,7 @@ func startBagroundTasks(cfg config.Config) {
 		return
 	}
 
-	info, err := client.Enqueue(task, asynq.ProcessIn(1*time.Hour), asynq.Timeout(24*time.Hour))
+	info, err := client.Enqueue(task, asynq.ProcessIn(24*time.Hour), asynq.Timeout(48*time.Hour))
 	if err != nil {
 		logger.Errorf("failed to enqueue task: %w", err)
 		return

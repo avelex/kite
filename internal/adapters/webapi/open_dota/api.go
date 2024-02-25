@@ -2,6 +2,7 @@ package opendota
 
 import (
 	"context"
+	"fmt"
 	"slices"
 
 	"github.com/avelex/kite/internal/entity"
@@ -37,15 +38,19 @@ func New(key string) *api {
 }
 
 func (a *api) PlayerAllMatches(ctx context.Context, accountID int64) ([]entity.PlayerMatchOverview, error) {
-	var matches []entity.PlayerMatchOverview
+	var (
+		matches     []entity.PlayerMatchOverview
+		errResponse string
+	)
 
 	err := requests.URL(_API_BASE).
 		Pathf(_PLAYER_MATCHES_PATH, accountID).
 		Param(_API_KEY, a.key).
 		ToJSON(&matches).
+		ErrorJSON(&errResponse).
 		Fetch(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %s", err, errResponse)
 	}
 
 	slices.Reverse(matches)
@@ -69,15 +74,19 @@ func (a *api) ProPlayers(ctx context.Context) ([]entity.ProPlayer, error) {
 }
 
 func (a *api) Match(ctx context.Context, matchID int64) (entity.FullMatch, error) {
-	var m entity.FullMatch
+	var (
+		m           entity.FullMatch
+		errResponse string
+	)
 
 	err := requests.URL(_API_BASE).
 		Pathf(_MATCHES_INFO_PATH, matchID).
 		Param(_API_KEY, a.key).
 		ToJSON(&m).
+		ErrorJSON(&errResponse).
 		Fetch(ctx)
 	if err != nil {
-		return entity.FullMatch{}, err
+		return entity.FullMatch{}, fmt.Errorf("%w: %s", err, errResponse)
 	}
 
 	return m, nil
