@@ -46,6 +46,7 @@ func (a *api) PlayerAllMatches(ctx context.Context, accountID int64) ([]entity.P
 	err := requests.URL(_API_BASE).
 		Pathf(_PLAYER_MATCHES_PATH, accountID).
 		Param(_API_KEY, a.key).
+		Param("patch", "54").
 		ToJSON(&matches).
 		ErrorJSON(&errResponse).
 		Fetch(ctx)
