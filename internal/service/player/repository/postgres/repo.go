@@ -53,7 +53,7 @@ func (r *repository) AccountIDByNickname(_ context.Context, nickname string) (in
 // Side         string
 // Type         WardType
 
-func (r *repository) PlayerWards(ctx context.Context, accountID, patch int64, sides, wardsType []string, times [2]uint16) ([]entity.PlayerWard, error) {
+func (r *repository) PlayerWards(ctx context.Context, accountID, patch int64, sides, wardsType []string, times [2]int16) ([]entity.PlayerWard, error) {
 	var out []entity.PlayerWard
 
 	stmt := r.db.WithContext(ctx).Where("account_id = ?", accountID)
@@ -62,16 +62,12 @@ func (r *repository) PlayerWards(ctx context.Context, accountID, patch int64, si
 		stmt = stmt.Where("patch_version = ?", patch)
 	}
 
-	if len(sides) > 0 {
-		for _, v := range sides {
-			stmt = stmt.Where("side = ?", v)
-		}
+	if len(sides) == 1 {
+		stmt = stmt.Where("side = ?", sides[0])
 	}
 
-	if len(wardsType) > 0 {
-		for _, v := range wardsType {
-			stmt = stmt.Where("type = ?", v)
-		}
+	if len(wardsType) == 1 {
+		stmt = stmt.Where("type = ?", wardsType[0])
 	}
 
 	if err := stmt.Where("time BETWEEN ? AND ?", times[0], times[1]).Find(&out).Error; err != nil {

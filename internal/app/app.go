@@ -101,15 +101,14 @@ func Run(ctx context.Context, cfg config.Config) error {
 		}
 	}()
 
-	logger.Info("Start Asynq server")
-	go func() {
-		if err := asynqSrv.Run(mux); err != nil {
-			logger.Error(err)
-		}
-	}()
+	// logger.Info("Start Asynq server")
+	// go func() {
+	// 	if err := asynqSrv.Run(mux); err != nil {
+	// 		logger.Error(err)
+	// 	}
+	// }()
 
-	time.Sleep(time.Second)
-	go startBagroundTasks(cfg)
+	//go startBagroundTasks(cfg)
 
 	<-ctx.Done()
 

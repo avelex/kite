@@ -9,7 +9,7 @@ import (
 )
 
 type PlayersUsecases interface {
-	PlayerWards(ctx context.Context, nickname, patch string, sides entity.Sides, wards entity.Wards, times []uint16) (entity.PlayerWardsView, error)
+	PlayerWards(ctx context.Context, nickname, patch string, sides entity.Sides, wards entity.Wards, times []int16) (entity.PlayerWardsView, error)
 }
 
 type handler struct {

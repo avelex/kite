@@ -10,7 +10,7 @@ import (
 
 type PlayerRepository interface {
 	AccountIDByNickname(ctx context.Context, nickname string) (int64, error)
-	PlayerWards(ctx context.Context, accountID, patch int64, sides, wardsType []string, times [2]uint16) ([]entity.PlayerWard, error)
+	PlayerWards(ctx context.Context, accountID, patch int64, sides, wardsType []string, times [2]int16) ([]entity.PlayerWard, error)
 }
 
 type PatchService interface {
@@ -30,7 +30,7 @@ func NewService(pr PlayerRepository, patchSvc PatchService) *service {
 	}
 }
 
-func (s *service) PlayerWards(ctx context.Context, nickname, patch string, sides entity.Sides, wardsType entity.Wards, times []uint16) (entity.PlayerWardsView, error) {
+func (s *service) PlayerWards(ctx context.Context, nickname, patch string, sides entity.Sides, wardsType entity.Wards, times []int16) (entity.PlayerWardsView, error) {
 	accID, err := s.repo.AccountIDByNickname(ctx, nickname)
 	if err != nil {
 		return entity.PlayerWardsView{}, err
@@ -43,7 +43,7 @@ func (s *service) PlayerWards(ctx context.Context, nickname, patch string, sides
 		patchInt = s.patchSvc.PatchVersionFromString(ctx, patch)
 	}
 
-	wards, err := s.repo.PlayerWards(ctx, accID, patchInt, sides.Slice(), wardsType.Slice(), [2]uint16(times))
+	wards, err := s.repo.PlayerWards(ctx, accID, patchInt, sides.Slice(), wardsType.Slice(), [2]int16(times))
 	if err != nil {
 		return entity.PlayerWardsView{}, err
 	}
@@ -94,7 +94,6 @@ func (s *service) PlayerWards(ctx context.Context, nickname, patch string, sides
 
 func calculateWardsFreqBySides(wards []entity.PlayerWard, side string, wardType entity.WardType) []entity.WardView {
 	frequencies := make(map[string][]entity.WardView)
-	count := 0
 
 	for _, w := range wards {
 		if w.Side != side || w.Type != wardType {
@@ -110,15 +109,13 @@ func calculateWardsFreqBySides(wards []entity.PlayerWard, side string, wardType 
 			X: uint8(roundedX),
 			Y: uint8(roundedY),
 		})
-
-		count++
 	}
 
 	out := make([]entity.WardView, 0)
 
 	for _, v := range frequencies {
 		ward := v[0]
-		rate := float64(len(v)) / float64(count) * 10000
+		rate := float64(1) / float64(len(frequencies)) * 10000
 		out = append(out, entity.WardView{
 			X:    ward.X,
 			Y:    ward.Y,
