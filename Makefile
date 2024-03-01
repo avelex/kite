@@ -8,7 +8,7 @@ start:
 
 .PHONY: down
 down:
-	docker compose down
+	docker compose down -v
 
 .PHONY: test
 test:

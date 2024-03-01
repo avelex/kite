@@ -11,24 +11,23 @@ import (
 
 type WardCollectorUsecases interface {
 	Collect(ctx context.Context) error
-	CollectPlayer(ctx context.Context, accountID int64) error
 }
 
-type processor struct {
+type wardProcessor struct {
 	wc WardCollectorUsecases
 }
 
-func NewProcessor(wc WardCollectorUsecases) *processor {
-	return &processor{
+func NewWardProcessor(wc WardCollectorUsecases) *wardProcessor {
+	return &wardProcessor{
 		wc: wc,
 	}
 }
 
-func (p *processor) Register(m *asynq.ServeMux) {
+func (p *wardProcessor) Register(m *asynq.ServeMux) {
 	m.Handle(tasks.WardCollect, p)
 }
 
-func (p *processor) ProcessTask(ctx context.Context, t *asynq.Task) error {
+func (p *wardProcessor) ProcessTask(ctx context.Context, t *asynq.Task) error {
 	logger := logger.LoggerFromContext(ctx)
 
 	logger.Info("Start processing collect wards task")

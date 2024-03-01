@@ -70,7 +70,8 @@ func Run(ctx context.Context, cfg config.Config) error {
 
 	// Registering Controllers
 	v1 := http_v1.New(playerService)
-	asynqProcessor := async_proc.NewProcessor(wardCollectorService)
+	wardProcessor := async_proc.NewWardProcessor(wardCollectorService)
+	statusProcessor := async_proc.NewStatusProcessor()
 
 	router := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
@@ -85,14 +86,22 @@ func Run(ctx context.Context, cfg config.Config) error {
 	asynqSrv := asynq.NewServer(
 		asynq.RedisClientOpt{Addr: cfg.Redis.Addr},
 		asynq.Config{
-			// Specify how many concurrent workers to use
-			Concurrency:     10,
 			ShutdownTimeout: 5 * time.Second,
 		},
 	)
 
 	mux := asynq.NewServeMux()
-	asynqProcessor.Register(mux)
+	wardProcessor.Register(mux)
+	statusProcessor.Register(mux)
+
+	asnyqScheduler := asynq.NewScheduler(
+		asynq.RedisClientOpt{Addr: cfg.Redis.Addr},
+		&asynq.SchedulerOpts{},
+	)
+
+	if err := scheduleTask(asnyqScheduler); err != nil {
+		return err
+	}
 
 	logger.Infof("Start HTTP server listening on port :%s", cfg.HTTP.Port)
 	go func() {
@@ -101,14 +110,19 @@ func Run(ctx context.Context, cfg config.Config) error {
 		}
 	}()
 
-	// logger.Info("Start Asynq server")
-	// go func() {
-	// 	if err := asynqSrv.Run(mux); err != nil {
-	// 		logger.Error(err)
-	// 	}
-	// }()
+	logger.Info("Start Asynq server")
+	go func() {
+		if err := asynqSrv.Start(mux); err != nil {
+			logger.Error(err)
+		}
+	}()
 
-	//go startBagroundTasks(cfg)
+	logger.Info("Start Asynq scheduler")
+	go func() {
+		if err := asnyqScheduler.Start(); err != nil {
+			logger.Error(err)
+		}
+	}()
 
 	<-ctx.Done()
 
@@ -117,28 +131,22 @@ func Run(ctx context.Context, cfg config.Config) error {
 	}
 
 	asynqSrv.Shutdown()
+	asnyqScheduler.Shutdown()
 
 	return nil
 }
 
-func startBagroundTasks(cfg config.Config) {
-	logger := logger.LoggerFromContext(context.Background())
-
-	client := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.Redis.Addr})
-	defer client.Close()
-
+func scheduleTask(s *asynq.Scheduler) error {
 	task, err := tasks.NewWardCollectTask()
 	if err != nil {
-		return
+		return err
 	}
 
-	info, err := client.Enqueue(task, asynq.ProcessIn(24*time.Hour), asynq.Timeout(48*time.Hour))
-	if err != nil {
-		logger.Errorf("failed to enqueue task: %w", err)
-		return
+	if _, err := s.Register("0 0 * * *", task, asynq.Timeout(12*time.Hour)); err != nil {
+		return err
 	}
 
-	logger.Infof("Enqueued task: id=%s queue=%s", info.ID, info.Queue)
+	return nil
 }
 
 func migration(db *gorm.DB) error {
