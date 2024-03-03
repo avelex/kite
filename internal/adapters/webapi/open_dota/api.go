@@ -40,7 +40,7 @@ func New(key string) *api {
 func (a *api) PlayerAllMatches(ctx context.Context, accountID int64) ([]entity.PlayerMatchOverview, error) {
 	var (
 		matches     []entity.PlayerMatchOverview
-		errResponse string
+		errResponse any
 	)
 
 	err := requests.URL(_API_BASE).
@@ -51,7 +51,7 @@ func (a *api) PlayerAllMatches(ctx context.Context, accountID int64) ([]entity.P
 		ErrorJSON(&errResponse).
 		Fetch(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", err, errResponse)
+		return nil, fmt.Errorf("%w: %v", err, errResponse)
 	}
 
 	slices.Reverse(matches)
@@ -77,7 +77,7 @@ func (a *api) ProPlayers(ctx context.Context) ([]entity.ProPlayer, error) {
 func (a *api) Match(ctx context.Context, matchID int64) (entity.FullMatch, error) {
 	var (
 		m           entity.FullMatch
-		errResponse string
+		errResponse any
 	)
 
 	err := requests.URL(_API_BASE).
@@ -87,7 +87,7 @@ func (a *api) Match(ctx context.Context, matchID int64) (entity.FullMatch, error
 		ErrorJSON(&errResponse).
 		Fetch(ctx)
 	if err != nil {
-		return entity.FullMatch{}, fmt.Errorf("%w: %s", err, errResponse)
+		return entity.FullMatch{}, fmt.Errorf("%w: %v", err, errResponse)
 	}
 
 	return m, nil
