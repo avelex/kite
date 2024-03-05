@@ -100,9 +100,9 @@ func Run(ctx context.Context, cfg config.Config) error {
 		&asynq.SchedulerOpts{},
 	)
 
-	if err := scheduleTask(asnyqScheduler); err != nil {
-		return err
-	}
+	// if err := scheduleTask(asnyqScheduler); err != nil {
+	// 	return err
+	// }
 
 	logger.Infof("Start HTTP server listening on port :%s", cfg.HTTP.Port)
 	go func() {
