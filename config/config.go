@@ -29,6 +29,7 @@ type Config struct {
 	Redis struct {
 		Addr string `env:"REDIS_ADDR" env-default:"redis:6379"`
 	}
+	FrontendDir string `env:"FRONTEND_DIR" env-default:"./dist"`
 }
 
 var cfg Config

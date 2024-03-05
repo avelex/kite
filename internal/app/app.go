@@ -76,6 +76,7 @@ func Run(ctx context.Context, cfg config.Config) error {
 	router := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 	})
+	router.Static("/", cfg.FrontendDir)
 
 	api := router.Group("/api")
 	api.Use(recover.New())
@@ -142,7 +143,7 @@ func scheduleTask(s *asynq.Scheduler) error {
 		return err
 	}
 
-	if _, err := s.Register("0 0 * * *", task, asynq.Timeout(12*time.Hour)); err != nil {
+	if _, err := s.Register("0 0 */3 * *", task, asynq.Timeout(12*time.Hour)); err != nil {
 		return err
 	}
 
