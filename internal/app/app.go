@@ -8,7 +8,6 @@ import (
 	"github.com/avelex/kite/config"
 	opendota "github.com/avelex/kite/internal/adapters/webapi/open_dota"
 	async_proc "github.com/avelex/kite/internal/controllers/asynq"
-	"github.com/avelex/kite/internal/controllers/asynq/tasks"
 	http_v1 "github.com/avelex/kite/internal/controllers/http/v1"
 	"github.com/avelex/kite/internal/entity"
 	"github.com/avelex/kite/internal/service/patch"
@@ -137,18 +136,18 @@ func Run(ctx context.Context, cfg config.Config) error {
 	return nil
 }
 
-func scheduleTask(s *asynq.Scheduler) error {
-	task, err := tasks.NewWardCollectTask()
-	if err != nil {
-		return err
-	}
+// func scheduleTask(s *asynq.Scheduler) error {
+// 	task, err := tasks.NewWardCollectTask()
+// 	if err != nil {
+// 		return err
+// 	}
 
-	if _, err := s.Register("0 0 */3 * *", task, asynq.Timeout(12*time.Hour)); err != nil {
-		return err
-	}
+// 	if _, err := s.Register("0 0 */3 * *", task, asynq.Timeout(12*time.Hour)); err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func migration(db *gorm.DB) error {
 	if err := db.AutoMigrate(&entity.PlayerWard{}); err != nil {
